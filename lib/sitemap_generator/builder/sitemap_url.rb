@@ -175,6 +175,7 @@ module SitemapGenerator
       protected
 
       def prepare_video_price_attribs(video)
+        return unless video
         attribs = {}
         attribs[:currency] = video[:price_currency].to_s # required
         attribs[:type] = video[:price_type] if SitemapGenerator::Utilities.present?(video[:price_type])
@@ -183,12 +184,14 @@ module SitemapGenerator
       end
 
       def prepare_news(news)
+        return unless news
         SitemapGenerator::Utilities.assert_valid_keys(news, :publication_name, :publication_language, :publication_date, :genres, :access, :title, :keywords, :stock_tickers) unless news.empty?
         news
       end
 
       # Return an Array of image option Hashes suitable to be parsed by SitemapGenerator::Builder::SitemapFile
       def prepare_images(images, host)
+        return unless images
         images.delete_if { |key,value| key[:loc] == nil }
         images.each do |r|
           SitemapGenerator::Utilities.assert_valid_keys(r, :loc, :caption, :geo_location, :title, :license)
