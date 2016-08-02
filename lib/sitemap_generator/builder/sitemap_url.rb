@@ -30,15 +30,15 @@ module SitemapGenerator
       # * +mobile+
       # * +alternate+/+alternates+
       # * +pagemap+
-      def initialize(path, options={})
-        options = options.dup
+      def initialize(path, options = nil)
+        options = options.is_a?(Hash) ? options.dup : {}
         if sitemap = path.is_a?(SitemapGenerator::Builder::SitemapFile) && path
           SitemapGenerator::Utilities.reverse_merge!(options, :host => sitemap.location.host, :lastmod => sitemap.lastmod)
           path = sitemap.location.path_in_public
         end
 
         SitemapGenerator::Utilities.assert_valid_keys(options, :priority, :changefreq, :lastmod, :expires, :host, :images, :video, :geo, :news, :videos, :mobile, :alternate, :alternates, :pagemap)
-        SitemapGenerator::Utilities.reverse_merge!(options, :priority => 0.5, :changefreq => 'weekly', :lastmod => Time.now, :images => [], :news => {}, :videos => [], :mobile => false, :alternates => [])
+        SitemapGenerator::Utilities.reverse_merge!(options, SitemapGenerator::Sitemap.url_defaults)
         raise "Cannot generate a url without a host" unless SitemapGenerator::Utilities.present?(options[:host])
 
         if video = options.delete(:video)
@@ -94,7 +94,7 @@ module SitemapGenerator
             end
           end
 
-          self[:images].each do |image|
+          self[:images] && self[:images].each do |image|
             builder.image:image do
               builder.image :loc, image[:loc]
               builder.image :caption, image[:caption].to_s             if image[:caption]
@@ -104,7 +104,7 @@ module SitemapGenerator
             end
           end
 
-          self[:videos].each do |video|
+          self[:videos] && self[:videos].each do |video|
             builder.video :video do
               builder.video :thumbnail_loc, video[:thumbnail_loc].to_s
               builder.video :title, video[:title].to_s
@@ -134,7 +134,7 @@ module SitemapGenerator
             end
           end
 
-          self[:alternates].each do |alternate|
+          self[:alternates] && self[:alternates].each do |alternate|
             rel = alternate[:nofollow] ? 'alternate nofollow' : 'alternate'
             attributes = { :rel => rel, :href => alternate[:href].to_s }
             attributes[:hreflang] = alternate[:lang].to_s if SitemapGenerator::Utilities.present?(alternate[:lang])

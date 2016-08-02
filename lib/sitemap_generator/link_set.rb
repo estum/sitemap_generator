@@ -8,7 +8,7 @@ module SitemapGenerator
     @@new_location_opts = [:filename, :sitemaps_path, :namer]
 
     attr_reader :default_host, :sitemaps_path, :filename, :create_index
-    attr_accessor :include_root, :include_index, :adapter, :yield_sitemap
+    attr_accessor :include_root, :include_index, :adapter, :yield_sitemap, :url_defaults
     attr_writer :verbose
 
     # Create a new sitemap index and sitemap files.  Pass a block with calls to the following
@@ -133,6 +133,14 @@ module SitemapGenerator
       if options[:sitemap_index]
         @protect_index = true
       end
+    end
+
+    def url_defaults
+      @url_defaults ||= {
+        :priority   => 0.5,
+        :changefreq => 'weekly',
+        :lastmod    => Time.now
+      }
     end
 
     # Add a link to a Sitemap.  If a new Sitemap is required, one will be created for
